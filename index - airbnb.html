@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immobili in Affitto</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3070b1;
+            --secondary-color: #104e77;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .search-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .search-form input,
+        .search-form select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .search-form button {
+            padding: 10px 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-form button:hover {
+            background-color: #2980b9;
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .property-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .property-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .property-info {
+            padding: 20px;
+        }
+
+        .property-price {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .property-details {
+            margin: 10px 0;
+        }
+
+        .property-features {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            color: #666;
+        }
+
+        .contact-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: var(--secondary-color);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .contact-button:hover {
+            background-color: #2980b9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .form-group input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .submit-button {
+            padding: 12px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .submit-button:hover {
+            background-color: #2980b9;
+        }
+
+        .gallery-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+        }
+
+        .gallery-content {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            margin: 5vh auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .gallery-nav button {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .gallery-nav button:hover {
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        .close-gallery {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 2010;
+        }
+
+        .gallery-counter {
+            position: absolute;
+            bottom: 20px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .properties-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+            }
+        }
+
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .login-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .discord-login-btn {
+            background-color: #7289DA;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .discord-login-btn:hover {
+            background-color: #5f73bc;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: white;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .logout-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        #mainContent {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Immobili in Affitto</h1>
+        <p>Le migliori soluzioni abitative per le tue esigenze</p>
+    </header>
+
+    <div class="container">
+        <section class="search-section">
+            <form class="search-form">
+                <input type="text" placeholder="Località">
+                <select>
+                    <option value="">Numero di stanze</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3+</option>
+                </select>
+                <input type="number" placeholder="Prezzo massimo">
+                <button type="submit">Cerca</button>
+            </form>
+        </section>
+
+        <div class="properties-grid">
+            <!-- Property Card 1 -->
+            <div class="property-card">
+                <img src="image/casa1ext1.png" alt="Appartamento" class="property-image" onclick="openGallery(0)">
+                <div class="property-info">
+                    <div class="property-price">€ 800/mese</div>
+                    <h3>Appartamento Moderno in Centro</h3>
+                    <div class="property-details">
+                        <p>Via Roma 123, Milano</p>
+                        <p>75 m² • 2 camere • 1 bagno</p>
+                    </div>
+                    <div class="property-features">
+                        <span><i class="fas fa-parking"></i> Parcheggio</span>
+                        <span><i class="fas fa-wifi"></i> Wi-Fi</span>
+                        <span><i class="fas fa-temperature-high"></i> Riscaldamento</span>
+                    </div>
+                    <button class="contact-button" onclick="openModal('Appartamento Moderno in Centro')">Contattami</button>
+                </div>
+            </div>
+
+            <!-- Property Card 2 -->
+            <div class="property-card">
+                <img src="image/foto.png" alt="Villa" class="property-image" onclick="openGallery(1)">
+                <div class="property-info">
+                    <div class="property-price">€ 1.200/mese</div>
+                    <h3>Villa con Giardino</h3>
+                    <div class="property-details">
+                        <p>Via dei Pini 45, Roma</p>
+                        <p>120 m² • 3 camere • 2 bagni</p>
+                    </div>
+                    <div class="property-features">
+                        <span><i class="fas fa-car"></i> Garage</span>
+                        <span><i class="fas fa-tree"></i> Giardino</span>
+                        <span><i class="fas fa-swimming-pool"></i> Piscina</span>
+                    </div>
+                    <button class="contact-button" onclick="openModal('Villa con Giardino')">Contattami</button>
+                </div>
+            </div>
+
+            <!-- Property Card 3 -->
+            <div class="property-card">
+                <img src="image/foto.png" alt="Loft" class="property-image" onclick="openGallery(2)">
+                <div class="property-info">
+                    <div class="property-price">€ 950/mese</div>
+                    <h3>Loft Industrial Style</h3>
+                    <div class="property-details">
+                        <p>Via dell'Industria 78, Torino</p>
+                        <p>90 m² • 1 camera • 1 bagno</p>
+                    </div>
+                    <div class="property-features">
+                        <span><i class="fas fa-desktop"></i> Smart Home</span>
+                        <span><i class="fas fa-warehouse"></i> Magazzino</span>
+                        <span><i class="fas fa-door-open"></i> Accesso 24/7</span>
+                    </div>
+                    <button class="contact-button" onclick="openModal('Loft Industrial Style')">Contattami</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2>Richiedi Informazioni</h2>
+            <p id="propertyTitle" style="margin-bottom: 20px; color: var(--secondary-color);"></p>
+            <form id="contactForm" class="contact-form" onsubmit="submitForm(event)">
+                <input type="hidden" id="propertyName" name="propertyName">
+                <div class="form-group">
+                    <label for="name">Nome e Cognome *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Recapito Telefonico *</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="discord">ID Discord *</label>
+                    <input type="text" id="discord" name="discord" required placeholder="esempio#1234">
+                </div>
+                <button type="submit" class="submit-button">Invia Richiesta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Gallery Modal -->
+    <div id="galleryModal" class="gallery-modal">
+        <span class="close-gallery" onclick="closeGallery()">&times;</span>
+        <div class="gallery-content">
+            <div class="gallery-image-container">
+                <img id="galleryImage" class="gallery-image" src="" alt="Property Image">
+                <div class="gallery-nav">
+                    <button onclick="changeImage(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <button onclick="changeImage(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="gallery-counter">
+                <span id="currentImageIndex">1</span>/<span id="totalImages">5</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-card">
+            <h2>Accedi con Discord</h2>
+            <p style="margin: 1rem 0;">Per visualizzare gli immobili disponibili, effettua l'accesso con il tuo account Discord.</p>
+            <button onclick="loginWithDiscord()" class="discord-login-btn">
+                <i class="fab fa-discord"></i>
+                Accedi con Discord
+            </button>
+        </div>
+    </div>
+
+    <div id="mainContent">
+        <header>
+            <h1>Immobili in Affitto</h1>
+            <p>Le migliori soluzioni abitative per le tue esigenze</p>
+            <div id="userInfo" class="user-info">
+                <img id="userAvatar" src="" alt="User Avatar" class="user-avatar">
+                <span id="userName"></span>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+    <footer>
+        <p>&copy; 2025 Immobili in Affitto. Tutti i diritti riservati.</p>
+    </footer>
+
+    <script>
+
+        // Discord OAuth2 Configuration
+        const CLIENT_ID = 'YOUR_DISCORD_CLIENT_ID';
+        const REDIRECT_URI = 'YOUR_REDIRECT_URI';
+        const DISCORD_WEBHOOK_URL = 'YOUR_DISCORD_WEBHOOK_URL';
+        
+        let userDiscordId = '';
+        let userDiscordTag = '';
+
+        // Check for Discord authentication on page load
+        window.onload = function() {
+            const fragment = new URLSearchParams(window.location.hash.slice(1));
+            const accessToken = fragment.get('access_token');
+
+            if (accessToken) {
+                getUserDiscordInfo(accessToken);
+            } else {
+                checkStoredAuth();
+            }
+        };
+
+        function checkStoredAuth() {
+            const storedAuth = localStorage.getItem('discordAuth');
+            if (storedAuth) {
+                const auth = JSON.parse(storedAuth);
+                if (auth.timestamp > Date.now() - 7 * 24 * 60 * 60 * 1000) { // 7 days
+                    userDiscordId = auth.id;
+                    userDiscordTag = auth.tag;
+                    displayUserInfo(auth);
+                    showMainContent();
+                    return;
+                }
+            }
+            showLoginOverlay();
+        }
+
+        function loginWithDiscord() {
+            const scope = 'identify';
+            window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${scope}`;
+        }
+
+        async function getUserDiscordInfo(accessToken) {
+            try {
+                const response = await fetch('https://discord.com/api/users/@me', {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                userDiscordId = data.id;
+                userDiscordTag = `${data.username}#${data.discriminator}`;
+                
+                // Store auth info
+                localStorage.setItem('discordAuth', JSON.stringify({
+                    id: data.id,
+                    tag: userDiscordTag,
+                    avatar: `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png`,
+                    name: data.username,
+                    timestamp: Date.now()
+                }));
+
+                displayUserInfo(data);
+                showMainContent();
+            } catch (error) {
+                console.error('Error fetching Discord user info:', error);
+                alert('Errore durante l\'accesso. Riprova più tardi.');
+            }
+        }
+
+        function displayUserInfo(userData) {
+            document.getElementById('userAvatar').src = userData.avatar || 'default-avatar.png';
+            document.getElementById('userName').textContent = userData.name || userData.username;
+        }
+
+        function showLoginOverlay() {
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
+        }
+
+        function showMainContent() {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
+
+        function logout() {
+            localStorage.removeItem('discordAuth');
+            userDiscordId = '';
+            userDiscordTag = '';
+            showLoginOverlay();
+        }
+
+        // Modified submitForm function to include Discord verification
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            const formData = {
+                propertyName: document.getElementById('propertyName').value,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                discord: document.getElementById('discord').value,
+                verifiedDiscordId: userDiscordId,
+                verifiedDiscordTag: userDiscordTag
+            };
+
+            // Verify Discord ID match
+            if (formData.discord.toLowerCase() !== formData.verifiedDiscordTag.toLowerCase()) {
+                alert('L\'ID Discord inserito non corrisponde al tuo account. Per favore, inserisci il tuo ID Discord corretto.');
+                return;
+            }
+
+            const discordMessage = {
+                embeds: [{
+                    title: "Nuova Richiesta di Informazioni",
+                    color: 3447003,
+                    fields: [
+                        {
+                            name: "Proprietà",
+                            value: formData.propertyName,
+                            inline: false
+                        },
+                        {
+                            name: "Nome e Cognome",
+                            value: formData.name,
+                            inline: true
+                        },
+                        {
+                            name: "Telefono",
+                            value: formData.phone,
+                            inline: true
+                        },
+                        {
+                            name: "Discord ID (Inserito)",
+                            value: formData.discord,
+                            inline: true
+                        },
+                        {
+                            name: "Discord ID (Verificato)",
+                            value: `<@${formData.verifiedDiscordId}> (${formData.verifiedDiscordTag})`,
+                            inline: true
+                        }
+                    ],
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            try {
+                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(discordMessage)
+                });
+
+                if (response.ok) {
+                    alert('Richiesta inviata con successo! Ti contatteremo presto.');
+                    closeModal();
+                    document.getElementById('contactForm').reset();
+                } else {
+                    throw new Error('Errore nell\'invio della richiesta');
+                }
+            } catch (error) {
+                alert('Si è verificato un errore. Per favore, riprova più tardi.');
+                console.error('Error:', error);
+            }
+        }
+
+        // Array delle immagini per ogni proprietà
+        const propertyImages = [
+            ["image/casa1ext1.png", "image/casa1int1.png", "image/casa1port.png", "image/casa1cacc.png"],
+            ["image/foto.png", "image/villa1.png", "image/villa2.png", "image/villa3.png"],
+            ["image/foto.png", "image/loft1.png", "image/loft2.png", "image/loft3.png"]
+        ];
+
+        let currentProperty = 0;
+        let currentImageIndex = 0;
+
+        // Funzioni per la galleria
+        function openGallery(propertyIndex) {
+            currentProperty = propertyIndex;
+            currentImageIndex = 0;
+            updateGalleryImage();
+            document.getElementById('galleryModal').style.display = 'block';
+            document.getElementById('totalImages').textContent = propertyImages[propertyIndex].length;
+            updateImageCounter();
+        }
+
+        function closeGallery() {
+            document.getElementById('galleryModal').style.display = 'none';
+        }
+
+        function changeImage(direction) {
+            currentImageIndex += direction;
+            if (currentImageIndex >= propertyImages[currentProperty].length) {
+                currentImageIndex = 0;
+            } else if (currentImageIndex < 0) {
+                currentImageIndex = propertyImages[currentProperty].length - 1;
+            }
+            updateGalleryImage();
+            updateImageCounter();
+        }
+
+        function updateGalleryImage() {
+            const galleryImage = document.getElementById('galleryImage');
+            galleryImage.src = propertyImages[currentProperty][currentImageIndex];
+        }
+
+        function updateImageCounter() {
+            document.getElementById('currentImageIndex').textContent = currentImageIndex + 1;
+        }
+
+        // Funzioni per il modal di contatto
+        function openModal(propertyName) {
+            document.getElementById('contactModal').style.display = 'block';
+            document.getElementById('propertyTitle').textContent = propertyName;
+            document.getElementById('propertyName').value = propertyName;
+        }
+
+        function closeModal() {
+            document.getElementById('contactModal').style.display = 'none';
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            const formData = {
+                propertyName: document.getElementById('propertyName').value,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                discord: document.getElementById('discord').value
+            };
+
+            // Crea il messaggio per Discord
+            const discordMessage = {
+                embeds: [{
+                    title: "Nuova Richiesta di Informazioni",
+                    color: 3447003, // Blu
+                    fields: [
+                        {
+                            name: "Proprietà",
+                            value: formData.propertyName,
+                            inline: false
+                        },
+                        {
+                            name: "Nome e Cognome",
+                            value: formData.name,
+                            inline: true
+                        },
+                        {
+                            name: "Telefono",
+                            value: formData.phone,
+                            inline: true
+                        },
+                        {
+                            name: "Discord ID",
+                            value: formData.discord,
+                            inline: true
+                        }
+                    ],
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            try {
+                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(discordMessage)
+                });
+
+                if (response.ok) {
+                    alert('Richiesta inviata con successo! Ti contatteremo presto.');
+                    closeModal();
+                    document.getElementById('contactForm').reset();
+                } else {
+                    throw new Error('Errore nell\'invio della richiesta');
+                }
+            } catch (error) {
+                alert('Si è verificato un errore. Per favore, riprova più tardi.');
+                console.error('Error:', error);
+            }
+        }
+
+        // Gestione click fuori dai modal
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('contactModal')) {
+                closeModal();
+            }
+            if (event.target == document.getElementById('galleryModal')) {
+                closeGallery();
+            }
+        }
+    </script>
+</body>
+</html>
